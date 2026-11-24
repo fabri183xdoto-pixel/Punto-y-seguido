@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto y Seguido — Nadie debería sanar en silencio</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tipografía Inter y Nunito para calidez y legibilidad -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Tone.js para suaves señales sonoras opcionales en la respiración -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        cream: '#FAF9F6',
+                        sand: '#F3EFEA',
+                        sage: {
+                            50: '#F2F7F4',
+                            100: '#E1ECE5',
+                            200: '#C5DACD',
+                            500: '#6B9E83',
+                            600: '#528269',
+                            700: '#3E6652',
+                        },
+                        tealsoft: {
+                            50: '#F0F7F9',
+                            100: '#D9ECF2',
+                            500: '#4A8B9C',
+                            600: '#397080',
+                            700: '#2A5562',
+                        },
+                        coralsoft: {
+                            50: '#FFF4F1',
+                            100: '#FFE4DC',
+                            400: '#F28B73',
+                            500: '#E67358',
+                            600: '#CC5A40',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #FAF9F6;
+            color: #263238;
+        }
+
+        /* Animación suave del círculo de respiración */
+        #breathing-circle {
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.8s ease, box-shadow 0.8s ease;
+        }
+
+        /* Transición de giro para la ruleta */
+        #wheel-svg {
+            transition: transform 4.2s cubic-bezier(0.17, 0.89, 0.22, 1);
+        }
+
+        /* Suavizado de acordeón */
+        .accordion-content {
+            transition: max-height 0.35s ease-out, opacity 0.3s ease-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        .accordion-content.open {
+            max-height: 300px;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-sage-200 selection:text-sage-700">
+
+    <!-- Barra de Navegación Superior -->
+    <header class="sticky top-0 z-40 bg-cream/90 backdrop-blur-md border-b border-sage-100">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <!-- Identidad del Proyecto -->
+            <a href="#" class="flex items-center gap-2.5 group">
+                <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-sage-500 to-tealsoft-500 flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
+                    <!-- Icono Punto y Seguido (punto + línea de continuidad) -->
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                        <circle cx="6" cy="12" r="2.5" fill="currentColor" stroke="none"/>
+                        <path d="M12 12h7"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="font-display font-extrabold text-lg text-slate-800 tracking-tight block leading-none">Punto y Seguido</span>
+                    <span class="text-[11px] font-medium text-sage-600">I.E. PNP PIN • 5.° Sec</span>
+                </div>
+            </a>
+
+            <!-- Enlaces rápidos en escritorio -->
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+                <a href="#termometro" class="hover:text-tealsoft-600 transition-colors">¿Cómo te sientes?</a>
+                <a href="#respiracion" class="hover:text-tealsoft-600 transition-colors">Respiración</a>
+                <a href="#ruleta" class="hover:text-tealsoft-600 transition-colors">Pausa Activa</a>
+                <a href="#tips" class="hover:text-tealsoft-600 transition-colors">Tips Escolares</a>
+            </nav>
+
+            <!-- Botón de acción directa -->
+            <button onclick="openHelpModal()" class="bg-coralsoft-500 hover:bg-coralsoft-600 active:scale-95 text-white text-sm font-semibold px-4 py-2.5 rounded-2xl shadow-sm transition-all flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                <span>Necesito hablar</span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- 1. SECCIÓN HERO -->
+        <section class="relative overflow-hidden pt-10 pb-16 sm:pt-16 sm:pb-24 px-4 sm:px-6">
+            <!-- Formas decorativas orgánicas de fondo -->
+            <div class="absolute -top-24 -left-24 w-72 h-72 bg-sage-100/70 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-16 -right-24 w-80 h-80 bg-tealsoft-100/60 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-4xl mx-auto text-center relative z-10">
+                <div class="inline-flex items-center gap-2 bg-sage-100/80 text-sage-700 px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold mb-6">
+                    <span>Espacio Seguro Estudiantil • Punto y Seguido en Vivo</span>
+                </div>
+
+                <h1 class="font-display font-extrabold text-4xl sm:text-6xl text-slate-800 tracking-tight mb-4">
+                    Punto y Seguido
+                </h1>
+
+                <p class="font-display font-bold text-xl sm:text-2xl text-tealsoft-600 mb-6">
+                    “Nadie debería sanar en silencio.”
+                </p>
+
+                <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed mb-9">
+                    Sabemos que los exámenes, las expectativas y los días pesados pueden abrumarte. Aquí no tienes que fingir que todo está bien ni cargar con todo tú solo. Este es tu rincón libre de prejuicios para pausar, respirar y recibir apoyo real.
+                </p>
+
+                <!-- Dos botones de acción rápida -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button onclick="openHelpModal()" class="w-full sm:w-auto bg-coralsoft-500 hover:bg-coralsoft-600 active:scale-95 text-white font-semibold px-7 py-4 rounded-2xl shadow-md shadow-coralsoft-500/20 transition-all flex items-center justify-center gap-2.5 text-base">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                        <span>Necesito hablar ahora</span>
+                    </button>
+
+                    <a href="#respiracion" class="w-full sm:w-auto bg-sage-600 hover:bg-sage-700 active:scale-95 text-white font-semibold px-7 py-4 rounded-2xl shadow-md shadow-sage-600/15 transition-all flex items-center justify-center gap-2.5 text-base">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Pausa de calma</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. TERMÓMETRO EMOCIONAL INTERACTIVO -->
+        <section id="termometro" class="py-12 sm:py-16 px-4 sm:px-6 bg-sand/70 border-y border-sage-100">
+            <div class="max-w-5xl mx-auto">
+                <div class="text-center mb-10">
+                    <span class="text-xs font-bold uppercase tracking-wider text-sage-600 bg-sage-100 px-3 py-1 rounded-full">Paso 1 • Reconoce lo que sientes</span>
+                    <h2 class="font-display font-extrabold text-2xl sm:text-4xl text-slate-800 mt-3 mb-2">
+                        Termómetro Emocional Interactivo
+                    </h2>
+                    <p class="text-slate-600 max-w-xl mx-auto text-sm sm:text-base">
+                        No hay respuestas correctas o incorrectas. Selecciona cómo te sientes en este momento para recibir una guía rápida pensada para ti.
+                    </p>
+                </div>
+
+                <!-- Botones de selección de estado emocional -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-8" id="mood-buttons">
+                    <button onclick="selectMood('saturado', this)" class="mood-btn text-left p-4 rounded-2xl bg-white border-2 border-transparent hover:border-coralsoft-400 shadow-sm transition-all flex flex-col justify-between gap-2">
+                        <span class="text-2xl" aria-hidden="true">📚</span>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">Saturado por exámenes</div>
+                            <div class="text-xs text-slate-500 mt-0.5">Demasiadas tareas y presión</div>
+                        </div>
+                    </button>
+
+                    <button onclick="selectMood('cansado', this)" class="mood-btn text-left p-4 rounded-2xl bg-white border-2 border-transparent hover:border-tealsoft-500 shadow-sm transition-all flex flex-col justify-between gap-2">
+                        <span class="text-2xl" aria-hidden="true">🔋</span>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">Cansado / Agotado</div>
+                            <div class="text-xs text-slate-500 mt-0.5">Sin energía física o mental</div>
+                        </div>
+                    </button>
+
+                    <button onclick="selectMood('ansioso', this)" class="mood-btn text-left p-4 rounded-2xl bg-white border-2 border-transparent hover:border-amber-400 shadow-sm transition-all flex flex-col justify-between gap-2">
+                        <span class="text-2xl" aria-hidden="true">🌊</span>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">Ansioso / Estresado</div>
+                            <div class="text-xs text-slate-500 mt-0.5">Mente acelerada o inquietud</div>
+                        </div>
+                    </button>
+
+                    <button onclick="selectMood('triste', this)" class="mood-btn text-left p-4 rounded-2xl bg-white border-2 border-transparent hover:border-indigo-400 shadow-sm transition-all flex flex-col justify-between gap-2">
+                        <span class="text-2xl" aria-hidden="true">🌧️</span>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">Triste en silencio</div>
+                            <div class="text-xs text-slate-500 mt-0.5">Desánimo o ganas de aislarme</div>
+                        </div>
+                    </button>
+
+                    <button onclick="selectMood('tranquilo', this)" class="mood-btn text-left p-4 rounded-2xl bg-white border-2 border-transparent hover:border-sage-500 shadow-sm transition-all flex flex-col justify-between gap-2">
+                        <span class="text-2xl" aria-hidden="true">🌿</span>
+                        <div>
+                            <div class="font-bold text-slate-800 text-sm">Tranquilo / Bien</div>
+                            <div class="text-xs text-slate-500 mt-0.5">En calma o con ganas de apoyar</div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Panel dinámico de respuesta empática -->
+                <div id="mood-response-box" class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-sage-200/80 transition-all">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div class="space-y-2 max-w-2xl">
+                            <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-tealsoft-600" id="mood-tag">
+                                Selecciona una opción arriba
+                            </div>
+                            <h3 class="font-display font-bold text-xl sm:text-2xl text-slate-800" id="mood-title">
+                                Estamos aquí para acompañarte a tu ritmo
+                            </h3>
+                            <p class="text-slate-600 text-sm sm:text-base leading-relaxed" id="mood-message">
+                                Hacer una pausa de dos minutos para identificar cómo te sientes ya es un primer paso valiente. Elige el estado que mejor describa tu día hoy.
+                            </p>
+                        </div>
+
+                        <div class="w-full md:w-auto shrink-0 bg-sage-50 p-4 rounded-2xl border border-sage-100 flex flex-col gap-2.5">
+                            <span class="text-xs font-bold text-sage-700 uppercase">Acción sugerida (2 min):</span>
+                            <p class="text-sm font-medium text-slate-700 max-w-xs" id="mood-action-text">
+                                Prueba un ciclo de respiración guiada o gira la ruleta de pausa activa.
+                            </p>
+                            <a href="#respiracion" id="mood-action-btn" class="inline-flex items-center justify-center gap-2 bg-tealsoft-600 hover:bg-tealsoft-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors">
+                                <span>Ir a la pausa sugerida</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. EJERCICIOS DE RESPIRACIÓN GUIADA & 4. RULETA DIGITAL DE PAUSA ACTIVA -->
+        <section class="py-14 sm:py-20 px-4 sm:px-6 max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 items-stretch">
+
+                <!-- SECCIÓN 3: EJERCICIOS DE RESPIRACIÓN GUIADA -->
+                <div id="respiracion" class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-tealsoft-100 flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider text-tealsoft-700 bg-tealsoft-100 px-3 py-1 rounded-full">Calma Fisiológica</span>
+                            <button id="sound-toggle" onclick="toggleSound()" class="text-xs font-medium text-slate-500 hover:text-tealsoft-600 flex items-center gap-1.5 bg-slate-100 px-3 py-1 rounded-full transition-colors" title="Activar o desactivar sonido suave">
+                                <span id="sound-icon">🔇</span>
+                                <span id="sound-label">Sonido suave: Off</span>
+                            </button>
+                        </div>
+
+                        <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-slate-800 mb-2">
+                            Respiración Guiada
+                        </h2>
+                        <p class="text-slate-600 text-sm mb-6">
+                            Sincroniza tu respiración con el círculo para reducir el ritmo cardíaco y despejar la mente en pocos minutos.
+                        </p>
+
+                        <!-- Selector de modo -->
+                        <div class="grid grid-cols-2 gap-2 p-1.5 bg-tealsoft-50 rounded-2xl mb-8">
+                            <button onclick="setBreathingMode('478')" id="btn-mode-478" class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold bg-white text-tealsoft-700 shadow-sm transition-all">
+                                Respiración 4-7-8
+                                <span class="block text-[11px] font-normal text-slate-500">Inhala 4s • Sostén 7s • Exhala 8s</span>
+                            </button>
+                            <button onclick="setBreathingMode('box')" id="btn-mode-box" class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:text-tealsoft-700 transition-all">
+                                Respiración Cuadrada
+                                <span class="block text-[11px] font-normal text-slate-500">4s Inhala • 4s Sostén • 4s Exhala • 4s</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Círculo animado de respiración -->
+                    <div class="my-4 flex flex-col items-center justify-center relative py-6">
+                        <div class="w-56 h-56 sm:w-64 sm:h-64 rounded-full bg-tealsoft-50/70 border border-tealsoft-100 flex items-center justify-center relative">
+                            <div id="breathing-circle" class="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-br from-tealsoft-500 to-sage-500 text-white flex flex-col items-center justify-center shadow-lg shadow-tealsoft-500/25 select-none">
+                                <span id="breath-phase" class="font-display font-bold text-base sm:text-lg tracking-wide">Listo</span>
+                                <span id="breath-timer" class="font-display font-extrabold text-3xl sm:text-4xl mt-0.5">--</span>
+                            </div>
+                        </div>
+                        <p id="breath-cycles" class="text-xs font-medium text-slate-500 mt-4">Ciclos completados: 0</p>
+                    </div>
+
+                    <!-- Controles Iniciar / Pausar / Reiniciar -->
+                    <div class="flex items-center justify-center gap-3 mt-4">
+                        <button id="breath-start-btn" onclick="toggleBreathing()" class="flex-1 bg-tealsoft-600 hover:bg-tealsoft-700 active:scale-95 text-white font-semibold py-3.5 px-6 rounded-2xl shadow-sm transition-all">
+                            Iniciar ejercicio
+                        </button>
+                        <button onclick="resetBreathing()" class="bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-semibold py-3.5 px-4 rounded-2xl transition-all" title="Reiniciar">
+                            Reiniciar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 4: RULETA DIGITAL DE PAUSA ACTIVA -->
+                <div id="ruleta" class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-sage-200/80 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-sage-700 bg-sage-100 px-3 py-1 rounded-full">Pausa en Vivo</span>
+                        <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-slate-800 mt-3 mb-2">
+                            Ruleta de Pausa Activa
+                        </h2>
+                        <p class="text-slate-600 text-sm mb-5">
+                            ¿No sabes qué hacer para desconectarte un rato? Gira la ruleta y cumple un reto saludable de 2 minutos.
+                        </p>
+                    </div>
+
+                    <!-- Contenedor de la Ruleta SVG -->
+                    <div class="relative flex flex-col items-center justify-center my-2">
+                        <!-- Puntero superior -->
+                        <div class="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[20px] border-t-coralsoft-500 z-20 -mb-2 drop-shadow"></div>
+
+                        <div class="w-64 h-64 sm:w-72 sm:h-72 relative">
+                            <svg id="wheel-svg" viewBox="0 0 300 300" class="w-full h-full drop-shadow-md">
+                                <!-- Segmentos generados dinámicamente con JS para máxima precisión -->
+                            </svg>
+                            <!-- Botón central de giro -->
+                            <button onclick="spinWheel()" id="wheel-center-btn" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-white border-4 border-sage-500 text-slate-800 font-display font-extrabold text-xs uppercase tracking-wider shadow-md hover:scale-105 active:scale-95 transition-transform z-10">
+                                Girar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Resultado de la Ruleta -->
+                    <div class="mt-4 bg-sage-50 rounded-2xl p-4 border border-sage-100 text-center">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-sage-600 block mb-1">Tu actividad de pausa:</span>
+                        <p id="wheel-result" class="font-display font-bold text-base sm:text-lg text-slate-800">
+                            Presiona “Girar” para obtener tu reto de bienestar
+                        </p>
+                    </div>
+
+                    <button onclick="spinWheel()" id="wheel-spin-btn" class="mt-4 w-full bg-sage-600 hover:bg-sage-700 active:scale-95 text-white font-semibold py-3.5 px-6 rounded-2xl shadow-sm transition-all">
+                        Girar ruleta ahora
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 5. TIPS DE ALIVIO DEL ESTRÉS ESCOLAR -->
+        <section id="tips" class="py-12 sm:py-16 px-4 sm:px-6 bg-sage-50/80 border-y border-sage-100">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-10">
+                    <span class="text-xs font-bold uppercase tracking-wider text-tealsoft-700 bg-tealsoft-100 px-3 py-1 rounded-full">Herramientas Prácticas</span>
+                    <h2 class="font-display font-extrabold text-2xl sm:text-4xl text-slate-800 mt-3 mb-2">
+                        Tips de Alivio del Estrés Escolar
+                    </h2>
+                    <p class="text-slate-600 text-sm sm:text-base">
+                        Estrategias simples pensadas por estudiantes para sobrevivir a la carga académica sin descuidar tu mente.
+                    </p>
+                </div>
+
+                <!-- Acordeón interactivo -->
+                <div class="space-y-3" id="tips-accordion">
+                    <!-- Tip 1 -->
+                    <div class="bg-white rounded-2xl border border-sage-200/70 overflow-hidden shadow-sm">
+                        <button onclick="toggleAccordion(this)" class="w-full px-6 py-4 text-left flex items-center justify-between gap-4 hover:bg-sage-50/50 transition-colors">
+                            <div class="flex items-center gap-3.5">
+                                <span class="w-9 h-9 rounded-xl bg-coralsoft-100 text-coralsoft-600 font-bold flex items-center justify-center shrink-0">01</span>
+                                <span class="font-display font-bold text-base sm:text-lg text-slate-800">Técnica Pomodoro 25/5</span>
+                            </div>
+                            <span class="accordion-icon text-slate-400 font-bold text-xl transition-transform">+</span>
+                        </button>
+                        <div class="accordion-content px-6">
+                            <p class="pb-5 pt-1 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-100">
+                                Estudiar 3 horas seguidas sin parar solo agota tu cerebro. Trabaja concentrado durante <strong>25 minutos</strong> (sin celular cerca) y descansa <strong>5 minutos</strong> reales levantándote de la silla. Al completar 4 bloques, tómate 15 minutos libres.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Tip 2 -->
+                    <div class="bg-white rounded-2xl border border-sage-200/70 overflow-hidden shadow-sm">
+                        <button onclick="toggleAccordion(this)" class="w-full px-6 py-4 text-left flex items-center justify-between gap-4 hover:bg-sage-50/50 transition-colors">
+                            <div class="flex items-center gap-3.5">
+                                <span class="w-9 h-9 rounded-xl bg-tealsoft-100 text-tealsoft-700 font-bold flex items-center justify-center shrink-0">02</span>
+                                <span class="font-display font-bold text-base sm:text-lg text-slate-800">Organiza tu tiempo sin saturarte</span>
+                            </div>
+                            <span class="accordion-icon text-slate-400 font-bold text-xl transition-transform">+</span>
+                        </button>
+                        <div class="accordion-content px-6">
+                            <p class="pb-5 pt-1 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-100">
+                                En lugar de hacer una lista interminable que te genere ansiedad, elige <strong>solo 3 prioridades clave</strong> para hoy. Divide las tareas grandes (como exposiciones o informes) en pasos pequeños de 20 minutos.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Tip 3 -->
+                    <div class="bg-white rounded-2xl border border-sage-200/70 overflow-hidden shadow-sm">
+                        <button onclick="toggleAccordion(this)" class="w-full px-6 py-4 text-left flex items-center justify-between gap-4 hover:bg-sage-50/50 transition-colors">
+                            <div class="flex items-center gap-3.5">
+                                <span class="w-9 h-9 rounded-xl bg-sage-100 text-sage-700 font-bold flex items-center justify-center shrink-0">03</span>
+                                <span class="font-display font-bold text-base sm:text-lg text-slate-800">Toma descansos activos</span>
+                            </div>
+                            <span class="accordion-icon text-slate-400 font-bold text-xl transition-transform">+</span>
+                        </button>
+                        <div class="accordion-content px-6">
+                            <p class="pb-5 pt-1 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-100">
+                                Cambiar la pantalla de las tareas por la pantalla de redes sociales no descansa la vista ni la mente. En tus pausas, estira los brazos, sal al patio a tomar aire fresco, toma agua o escucha una canción que te suba el ánimo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Tip 4 -->
+                    <div class="bg-white rounded-2xl border border-sage-200/70 overflow-hidden shadow-sm">
+                        <button onclick="toggleAccordion(this)" class="w-full px-6 py-4 text-left flex items-center justify-between gap-4 hover:bg-sage-50/50 transition-colors">
+                            <div class="flex items-center gap-3.5">
+                                <span class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 font-bold flex items-center justify-center shrink-0">04</span>
+                                <span class="font-display font-bold text-base sm:text-lg text-slate-800">Rompe el silencio sin miedo</span>
+                            </div>
+                            <span class="accordion-icon text-slate-400 font-bold text-xl transition-transform">+</span>
+                        </button>
+                        <div class="accordion-content px-6">
+                            <p class="pb-5 pt-1 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-100">
+                                Pedir ayuda no te hace débil ni es una carga para los demás. Hablar con un amigo de confianza, un tutor o un psicólogo libera gran parte del peso emocional. Recuerda: <strong>nadie debería sanar en silencio</strong>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. CANAL CONFIDENCIAL Y DIRECTORIO DE AYUDA REAL (PERÚ) -->
+        <section id="ayuda" class="py-14 sm:py-20 px-4 sm:px-6 max-w-6xl mx-auto">
+            <div class="bg-gradient-to-br from-tealsoft-700 to-sage-700 rounded-3xl p-6 sm:p-10 text-white shadow-lg">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-5 space-y-4">
+                        <span class="inline-block bg-white/15 text-white text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                            Apoyo Real y Gratuito
+                        </span>
+                        <h2 class="font-display font-extrabold text-2xl sm:text-4xl leading-tight">
+                            ¿Necesitas hablar con alguien ahora?
+                        </h2>
+                        <p class="text-tealsoft-50 text-sm sm:text-base leading-relaxed">
+                            Si sientes que la tristeza, la ansiedad o el agotamiento son demasiado pesados, no te lo guardes. Puedes iniciar una conversación confidencial con nuestro equipo de pares o contactar directamente a profesionales gratuitos en Perú.
+                        </p>
+                        <button onclick="openHelpModal()" class="bg-coralsoft-500 hover:bg-coralsoft-600 active:scale-95 text-white font-bold px-6 py-3.5 rounded-2xl shadow-md transition-all inline-flex items-center gap-2">
+                            <span>Abrir canal de escucha confidencial</span>
+                            <span>→</span>
+                        </button>
+                    </div>
+
+                    <!-- Directorio de Líneas de Ayuda en Perú -->
+                    <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Línea 113 -->
+                        <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-5 flex flex-col justify-between">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-coralsoft-100">MINSA • Perú 24/7</span>
+                                <h3 class="font-display font-extrabold text-xl mt-1">Línea 113 (Opción 5)</h3>
+                                <p class="text-xs text-tealsoft-50 mt-2 leading-relaxed">
+                                    Orientación psicológica gratuita y confidencial las 24 horas desde cualquier teléfono fijo o celular.
+                                </p>
+                            </div>
+                            <a href="tel:113" class="mt-4 inline-block text-center bg-white text-tealsoft-700 hover:bg-tealsoft-50 font-bold text-xs py-2.5 px-3 rounded-xl transition-colors">
+                                Llamar al 113
+                            </a>
+                        </div>
+
+                        <!-- Chat 100 -->
+                        <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-5 flex flex-col justify-between">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-coralsoft-100">MIMP • Online</span>
+                                <h3 class="font-display font-extrabold text-xl mt-1">Chat 100 / Línea 100</h3>
+                                <p class="text-xs text-tealsoft-50 mt-2 leading-relaxed">
+                                    Servicio gratuito de orientación emocional y prevención frente a situaciones de riesgo o violencia familiar.
+                                </p>
+                            </div>
+                            <a href="https://chat100.aurora.gob.pe/" target="_blank" rel="noopener noreferrer" class="mt-4 inline-block text-center bg-white text-tealsoft-700 hover:bg-tealsoft-50 font-bold text-xs py-2.5 px-3 rounded-xl transition-colors">
+                                Ir a Chat 100
+                            </a>
+                        </div>
+
+                        <!-- Tutoría I.E. PNP PIN -->
+                        <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-5 flex flex-col justify-between">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-coralsoft-100">En nuestro colegio</span>
+                                <h3 class="font-display font-extrabold text-xl mt-1">Psicología y Tutoría PIN</h3>
+                                <p class="text-xs text-tealsoft-50 mt-2 leading-relaxed">
+                                    Acércate al departamento de Psicología o conversa con tu tutor(a) en la I.E. PNP Precursores de la Independencia Nacional.
+                                </p>
+                            </div>
+                            <button onclick="openHelpModal()" class="mt-4 w-full text-center bg-white/20 hover:bg-white/30 text-white font-bold text-xs py-2.5 px-3 rounded-xl transition-colors">
+                                Solicitar acompañamiento
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 7. FOOTER CON CRÉDITOS DEL EQUIPO -->
+    <footer class="bg-sand border-t border-sage-200/70 py-10 px-4 sm:px-6">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+            <div>
+                <div class="flex items-center justify-center md:justify-start gap-2 mb-1">
+                    <span class="font-display font-extrabold text-lg text-slate-800">Punto y Seguido</span>
+                    <span class="text-xs bg-sage-200/70 text-sage-700 font-semibold px-2.5 py-0.5 rounded-full">5.° de Secundaria</span>
+                </div>
+                <p class="text-sm text-slate-600 font-medium">
+                    I.E. PNP Precursores de la Independencia Nacional (PIN) • Proyecto de Educación para el Trabajo (EPT)
+                </p>
+                <p class="text-xs text-slate-500 mt-1 italic">
+                    “Nadie debería sanar en silencio.”
+                </p>
+            </div>
+
+            <div class="bg-white px-5 py-3.5 rounded-2xl border border-sage-200/60 shadow-sm">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-sage-600 block mb-1">Equipo Creador</span>
+                <p class="text-xs sm:text-sm font-semibold text-slate-700">
+                    Valentino Velásquez • Fabrizio Rodríguez • Zahir Sandoval
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL CONFIDENCIAL: "NECESITO HABLAR AHORA" -->
+    <div id="help-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-sage-100 relative animate-[fadeIn_0.2s_ease-out]">
+            <button onclick="closeHelpModal()" class="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold transition-colors" aria-label="Cerrar ventana">
+                ✕
+            </button>
+
+            <div class="inline-flex items-center gap-2 bg-coralsoft-100 text-coralsoft-600 text-xs font-bold px-3 py-1 rounded-full mb-3">
+                <span>100% Confidencial y Sin Juicios</span>
+            </div>
+
+            <h3 class="font-display font-extrabold text-2xl text-slate-800 mb-2">
+                No tienes que pasar por esto solo
+            </h3>
+            <p class="text-sm text-slate-600 mb-5 leading-relaxed">
+                Puedes escribir cómo te sientes de forma anónima (si deseas deja tu nombre o alias) para coordinar una charla tranquila con un compañero guía de <strong>Punto y Seguido</strong> o recibir orientación directa.
+            </p>
+
+            <form id="support-form" onsubmit="handleSupportSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">¿Cómo prefieres que te llamemos? (Opcional / Alias)</label>
+                    <input type="text" id="alias-input" placeholder="Ej. Estudiante de 5.°, Anónimo, o tu nombre" class="w-full px-4 py-2.5 rounded-xl bg-cream border border-slate-200 text-sm focus:outline-none focus:border-tealsoft-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">¿Qué te gustaría compartir o qué apoyo necesitas?</label>
+                    <textarea id="msg-input" rows="3" required placeholder="Escribe aquí con total confianza..." class="w-full px-4 py-2.5 rounded-xl bg-cream border border-slate-200 text-sm focus:outline-none focus:border-tealsoft-500"></textarea>
+                </div>
+
+                <div class="bg-tealsoft-50 p-3.5 rounded-xl border border-tealsoft-100 text-xs text-tealsoft-700 flex items-start gap-2.5">
+                    <span class="text-base">📞</span>
+                    <div>
+                        <strong>¿Es una urgencia emocional?</strong> Llama gratis al <strong>113 (Opción 5)</strong> del MINSA las 24 horas.
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeHelpModal()" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-coralsoft-500 hover:bg-coralsoft-600 text-white text-sm font-bold px-6 py-2.5 rounded-xl shadow-sm transition-all">
+                        Enviar solicitud de apoyo
+                    </button>
+                </div>
+            </form>
+
+            <!-- Confirmación visual tras envío (reemplaza alert()) -->
+            <div id="support-confirmation" class="hidden text-center py-6 space-y-3">
+                <div class="w-14 h-14 rounded-full bg-sage-100 text-sage-600 flex items-center justify-center text-2xl mx-auto">
+                    ✓
+                </div>
+                <h4 class="font-display font-extrabold text-xl text-slate-800">Mensaje recibido con confidencialidad</h4>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    Gracias por dar este paso y romper el silencio. Un integrante guía del equipo <strong>Punto y Seguido</strong> estará atento para acompañarte con respeto. Mientras tanto, recuerda que también puedes llamar gratis al <strong>113 (Opción 5)</strong>.
+                </p>
+                <button onclick="resetSupportModal()" class="mt-2 bg-tealsoft-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:bg-tealsoft-700 transition-colors">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LÓGICA INTERACTIVA EN JAVASCRIPT -->
+    <script>
+        /* =========================================================
+           1. TERMÓMETRO EMOCIONAL INTERACTIVO
+           ========================================================= */
+        const moodData = {
+            saturado: {
+                tag: 'Estado: Saturado por exámenes',
+                title: 'Respira: tus notas no definen tu valor como persona',
+                message: 'Es completamente normal sentir presión cuando se juntan tareas, exámenes y el futuro después del colegio. No tienes que resolver todo hoy mismo; divide el trabajo en bloques pequeños.',
+                actionText: 'Haz 2 ciclos de Respiración Cuadrada para despejar la mente.',
+                btnLabel: 'Ir a Respiración Cuadrada',
+                btnHref: '#respiracion',
+                mode: 'box'
+            },
+            cansado: {
+                tag: 'Estado: Cansado / Agotado',
+                title: 'Tu cuerpo y tu mente te están pidiendo una pausa real',
+                message: 'El agotamiento acumulado afecta tu ánimo y concentración. Permítete desconectarte unos minutos sin culpa para recargar energía antes de continuar.',
+                actionText: 'Gira la Ruleta de Pausa Activa para hacer un descanso saludable.',
+                btnLabel: 'Ir a la Ruleta Activa',
+                btnHref: '#ruleta',
+                mode: null
+            },
+            ansioso: {
+                tag: 'Estado: Ansioso / Estresado',
+                title: 'Estás a salvo; bajemos juntos las revoluciones',
+                message: 'Cuando la mente va muy rápido pensando en todo lo que puede salir mal, enfocar tu atención en una exhalación lenta le envía una señal directa de calma a tu sistema nervioso.',
+                actionText: 'Practica la Respiración 4-7-8 durante 1 minuto.',
+                btnLabel: 'Iniciar Respiración 4-7-8',
+                btnHref: '#respiracion',
+                mode: '478'
+            },
+            triste: {
+                tag: 'Estado: Triste en silencio',
+                title: 'No tienes que fingir una sonrisa ni cargar esto solo',
+                message: 'Muchos compañeros pasan por bajones emocionales y callan por miedo al qué dirán. Hablar con alguien de confianza o pedir escucha es un acto de valentía.',
+                actionText: 'Abre nuestro canal confidencial o conversa con un amigo.',
+                btnLabel: 'Hablar con alguien ahora',
+                btnHref: '#ayuda',
+                mode: null
+            },
+            tranquilo: {
+                tag: 'Estado: Tranquilo / Bien',
+                title: '¡Qué bueno que hoy te sientas en calma!',
+                message: 'Aprovecha este buen momento para cuidar tus hábitos y también estar atento a si algún compañero de tu salón necesita ser escuchado hoy.',
+                actionText: 'Explora los tips de bienestar o gira la ruleta para mantener tu energía.',
+                btnLabel: 'Ver Tips Escolares',
+                btnHref: '#tips',
+                mode: null
+            }
+        };
+
+        function selectMood(moodKey, btnElement) {
+            // Actualizar estilos de selección en botones
+            document.querySelectorAll('.mood-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-tealsoft-500', 'bg-tealsoft-50/40');
+            });
+            btnElement.classList.add('ring-2', 'ring-tealsoft-500', 'bg-tealsoft-50/40');
+
+            // Actualizar contenido empático
+            const data = moodData[moodKey];
+            document.getElementById('mood-tag').textContent = data.tag;
+            document.getElementById('mood-title').textContent = data.title;
+            document.getElementById('mood-message').textContent = data.message;
+            document.getElementById('mood-action-text').textContent = data.actionText;
+
+            const actionBtn = document.getElementById('mood-action-btn');
+            actionBtn.querySelector('span').textContent = data.btnLabel;
+            actionBtn.setAttribute('href', data.btnHref);
+
+            if (data.mode) {
+                setBreathingMode(data.mode);
+            }
+        }
+
+        /* =========================================================
+           2. EJERCICIOS DE RESPIRACIÓN GUIADA (4-7-8 y CUADRADA)
+           ========================================================= */
+        const breathingModes = {
+            '478': [
+                { label: 'Inhala', seconds: 4, scale: 1.45, color: 'from-tealsoft-500 to-sage-500' },
+                { label: 'Sostén', seconds: 7, scale: 1.45, color: 'from-sage-500 to-tealsoft-600' },
+                { label: 'Exhala', seconds: 8, scale: 1.0,  color: 'from-tealsoft-600 to-slate-600' }
+            ],
+            'box': [
+                { label: 'Inhala', seconds: 4, scale: 1.45, color: 'from-tealsoft-500 to-sage-500' },
+                { label: 'Sostén', seconds: 4, scale: 1.45, color: 'from-sage-500 to-tealsoft-600' },
+                { label: 'Exhala', seconds: 4, scale: 1.0,  color: 'from-tealsoft-600 to-slate-600' },
+                { label: 'Sostén', seconds: 4, scale: 1.0,  color: 'from-slate-500 to-tealsoft-500' }
+            ]
+        };
+
+        let currentMode = '478';
+        let isBreathingRunning = false;
+        let breathInterval = null;
+        let phaseIndex = 0;
+        let secondsLeft = 0;
+        let completedCycles = 0;
+        let soundEnabled = false;
+        let synth = null;
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-icon').textContent = soundEnabled ? '🔔' : '🔇';
+            document.getElementById('sound-label').textContent = soundEnabled ? 'Sonido suave: On' : 'Sonido suave: Off';
+            if (soundEnabled && typeof Tone !== 'undefined') {
+                Tone.start();
+                if (!synth) {
+                    synth = new Tone.Synth({
+                        oscillator: { type: 'sine' },
+                        envelope: { attack: 0.2, decay: 0.4, sustain: 0.1, release: 1.2 }
+                    }).toDestination();
+                    synth.volume.value = -14;
+                }
+            }
+        }
+
+        function playSoftChime(note) {
+            if (soundEnabled && synth) {
+                try {
+                    synth.triggerAttackRelease(note, '8n');
+                } catch (e) {}
+            }
+        }
+
+        function setBreathingMode(mode) {
+            currentMode = mode;
+            const btn478 = document.getElementById('btn-mode-478');
+            const btnBox = document.getElementById('btn-mode-box');
+
+            if (mode === '478') {
+                btn478.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold bg-white text-tealsoft-700 shadow-sm transition-all';
+                btnBox.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:text-tealsoft-700 transition-all';
+            } else {
+                btnBox.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold bg-white text-tealsoft-700 shadow-sm transition-all';
+                btn478.className = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:text-tealsoft-700 transition-all';
+            }
+            resetBreathing();
+        }
+
+        function applyPhaseVisuals(phase) {
+            const circle = document.getElementById('breathing-circle');
+            document.getElementById('breath-phase').textContent = phase.label;
+            document.getElementById('breath-timer').textContent = secondsLeft;
+            circle.style.transitionDuration = `${phase.seconds}s`;
+            circle.style.transform = `scale(${phase.scale})`;
+        }
+
+        function toggleBreathing() {
+            const startBtn = document.getElementById('breath-start-btn');
+            if (isBreathingRunning) {
+                clearInterval(breathInterval);
+                isBreathingRunning = false;
+                startBtn.textContent = 'Continuar';
+                return;
+            }
+
+            isBreathingRunning = true;
+            startBtn.textContent = 'Pausar';
+
+            const phases = breathingModes[currentMode];
+            if (secondsLeft === 0) {
+                phaseIndex = 0;
+                secondsLeft = phases[0].seconds;
+                applyPhaseVisuals(phases[0]);
+                playSoftChime('C4');
+            }
+
+            breathInterval = setInterval(() => {
+                secondsLeft--;
+                if (secondsLeft > 0) {
+                    document.getElementById('breath-timer').textContent = secondsLeft;
+                } else {
+                    phaseIndex++;
+                    if (phaseIndex >= phases.length) {
+                        phaseIndex = 0;
+                        completedCycles++;
+                        document.getElementById('breath-cycles').textContent = `Ciclos completados: ${completedCycles}`;
+                    }
+                    const nextPhase = phases[phaseIndex];
+                    secondsLeft = nextPhase.seconds;
+                    applyPhaseVisuals(nextPhase);
+                    playSoftChime(phaseIndex === 0 ? 'E4' : 'C4');
+                }
+            }, 1000);
+        }
+
+        function resetBreathing() {
+            clearInterval(breathInterval);
+            isBreathingRunning = false;
+            phaseIndex = 0;
+            secondsLeft = 0;
+            const circle = document.getElementById('breathing-circle');
+            circle.style.transitionDuration = '0.5s';
+            circle.style.transform = 'scale(1)';
+            document.getElementById('breath-phase').textContent = 'Listo';
+            document.getElementById('breath-timer').textContent = '--';
+            document.getElementById('breath-start-btn').textContent = 'Iniciar ejercicio';
+        }
+
+        /* =========================================================
+           3. RULETA DIGITAL DE PAUSA ACTIVA (6 ACTIVIDADES)
+           ========================================================= */
+        const wheelActivities = [
+            { short: 'Estiramiento', full: 'Estiramiento de cuello y hombros por 2 minutos', color: '#6B9E83' },
+            { short: 'Tu canción', full: 'Escucha tu canción favorita por 3 minutos con los ojos cerrados', color: '#4A8B9C' },
+            { short: 'Toma agua', full: 'Hidratación consciente: toma un vaso de agua despacio', color: '#E67358' },
+            { short: 'Sin pantallas', full: 'Desconexión total de pantallas por 2 minutos', color: '#84B099' },
+            { short: 'Habla 3 min', full: 'Conversa 3 minutos con un amigo o compañero de confianza', color: '#66A3B2' },
+            { short: 'Mira afuera', full: 'Respiración profunda mirando por la ventana o hacia el cielo', color: '#F28B73' }
+        ];
+
+        let currentRotation = 0;
+        let isSpinning = false;
+
+        function buildWheelSVG() {
+            const svg = document.getElementById('wheel-svg');
+            const numSlices = wheelActivities.length;
+            const anglePerSlice = 360 / numSlices;
+            const radius = 145;
+            const cx = 150;
+            const cy = 150;
+
+            wheelActivities.forEach((item, index) => {
+                const startAngle = (index * anglePerSlice - 90) * (Math.PI / 180);
+                const endAngle = ((index + 1) * anglePerSlice - 90) * (Math.PI / 180);
+
+                const x1 = cx + radius * Math.cos(startAngle);
+                const y1 = cy + radius * Math.sin(startAngle);
+                const x2 = cx + radius * Math.cos(endAngle);
+                const y2 = cy + radius * Math.sin(endAngle);
+
+                const pathData = `M ${cx} ${cy} L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`;
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', pathData);
+                path.setAttribute('fill', item.color);
+                path.setAttribute('stroke', '#FFFFFF');
+                path.setAttribute('stroke-width', '2.5');
+                svg.appendChild(path);
+
+                // Etiqueta de texto dentro de cada porción
+                const midAngle = ((index + 0.5) * anglePerSlice - 90) * (Math.PI / 180);
+                const textRadius = radius * 0.63;
+                const tx = cx + textRadius * Math.cos(midAngle);
+                const ty = cy + textRadius * Math.sin(midAngle);
+                const rotateDeg = (index + 0.5) * anglePerSlice;
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', tx);
+                text.setAttribute('y', ty);
+                text.setAttribute('fill', '#FFFFFF');
+                text.setAttribute('font-size', '11');
+                text.setAttribute('font-weight', '700');
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dominant-baseline', 'middle');
+                text.setAttribute('transform', `rotate(${rotateDeg}, ${tx}, ${ty})`);
+                text.textContent = item.short;
+                svg.appendChild(text);
+            });
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            isSpinning = true;
+
+            const spinBtn = document.getElementById('wheel-spin-btn');
+            const resultEl = document.getElementById('wheel-result');
+            spinBtn.disabled = true;
+            spinBtn.classList.add('opacity-70');
+            resultEl.textContent = 'Girando...';
+
+            const extraSpins = 5 * 360;
+            const randomOffset = Math.floor(Math.random() * 360);
+            currentRotation += extraSpins + randomOffset;
+
+            const svg = document.getElementById('wheel-svg');
+            svg.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(() => {
+                const normalizedAngle = (360 - (currentRotation % 360)) % 360;
+                const sliceAngle = 360 / wheelActivities.length;
+                const selectedIndex = Math.floor(normalizedAngle / sliceAngle);
+                const chosen = wheelActivities[selectedIndex];
+
+                resultEl.textContent = chosen.full;
+                playSoftChime('G4');
+
+                isSpinning = false;
+                spinBtn.disabled = false;
+                spinBtn.classList.remove('opacity-70');
+            }, 4250);
+        }
+
+        /* =========================================================
+           4. ACORDEÓN DE TIPS ESCOLARES
+           ========================================================= */
+        function toggleAccordion(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('.accordion-icon');
+            const isOpen = content.classList.contains('open');
+
+            // Cerrar otros paneles abiertos
+            document.querySelectorAll('.accordion-content').forEach(el => el.classList.remove('open'));
+            document.querySelectorAll('.accordion-icon').forEach(ic => ic.style.transform = 'rotate(0deg)');
+
+            if (!isOpen) {
+                content.classList.add('open');
+                icon.style.transform = 'rotate(45deg)';
+            }
+        }
+
+        /* =========================================================
+           5. MODAL DE APOYO CONFIDENCIAL
+           ========================================================= */
+        function openHelpModal() {
+            const modal = document.getElementById('help-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeHelpModal() {
+            const modal = document.getElementById('help-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function handleSupportSubmit(event) {
+            event.preventDefault();
+            document.getElementById('support-form').classList.add('hidden');
+            document.getElementById('support-confirmation').classList.remove('hidden');
+        }
+
+        function resetSupportModal() {
+            document.getElementById('support-form').reset();
+            document.getElementById('support-confirmation').classList.add('hidden');
+            document.getElementById('support-form').classList.remove('hidden');
+            closeHelpModal();
+        }
+
+        // Inicialización al cargar la página
+        window.addEventListener('DOMContentLoaded', () => {
+            buildWheelSVG();
+            // Abrir el primer tip por defecto
+            const firstTipBtn = document.querySelector('#tips-accordion button');
+            if (firstTipBtn) toggleAccordion(firstTipBtn);
+        });
+    </script>
+</body>
+</html>
